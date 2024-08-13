@@ -1,13 +1,23 @@
 import { NavLink, Navigate, Outlet } from "react-router-dom";
-import Icon from "@ant-design/icons";
+import Icon, { BellFilled } from "@ant-design/icons";
 import { useAuthStore } from "../store";
-import { Layout, Menu, theme } from "antd";
+import {
+  Avatar,
+  Badge,
+  Dropdown,
+  Flex,
+  Layout,
+  Menu,
+  Space,
+  theme,
+} from "antd";
 import { useState } from "react";
 import Logo from "../components/icons/Logo";
 import Home from "../components/icons/Home";
 import { foodIcon } from "../components/icons/FoodIcon";
 import BasketIcon from "../components/icons/BasketIcon";
 import GiftIcon from "../components/icons/GiftIcon";
+import useLogoutMutation from "../hooks/useLogoutMutate";
 
 const { Sider, Header, Content, Footer } = Layout;
 
@@ -45,13 +55,10 @@ const Dashboard = () => {
   // call getself
   const { user } = useAuthStore();
 
+  const { logoutMutate } = useLogoutMutation();
+
   if (user === null) {
-    return (
-      <Navigate
-        to={`/auth/login?returnTo=${location.pathname}`}
-        replace={true}
-      />
-    );
+    return <Navigate to={`/auth/login`} replace={true} />;
   }
   //   const items = getMenuItems(user.role);
 
@@ -83,11 +90,12 @@ const Dashboard = () => {
               background: colorBgContainer,
             }}
           >
-            {/* <Flex gap="middle" align="start" justify="space-between">
+            <Flex gap="middle" align="start" justify="space-between">
               <Badge
-                text={
-                  user.role === "admin" ? "You are an admin" : user.tenant?.name
-                }
+                text="Location"
+                // text={
+                //   user.role === "admin" ? "You are an admin" : user.tenant?.name
+                // }
                 status="success"
               />
               <Space size={16}>
@@ -116,7 +124,7 @@ const Dashboard = () => {
                   </Avatar>
                 </Dropdown>
               </Space>
-            </Flex> */}
+            </Flex>
           </Header>
           <Content style={{ margin: "24px" }}>
             <Outlet />
