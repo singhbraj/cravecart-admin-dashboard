@@ -22,34 +22,44 @@ import useLogoutMutation from "../hooks/useLogoutMutate";
 
 const { Sider, Header, Content, Footer } = Layout;
 
-// const getMenuItems = () => {
-const items = [
-  {
-    key: "/",
-    icon: <Icon component={Home} />,
-    label: <NavLink to="/">Home</NavLink>,
-  },
-  {
-    key: "/users",
-    icon: <Icon component={UserIcon} />,
-    label: <NavLink to="/users">Users</NavLink>,
-  },
-  {
-    key: "/products",
-    icon: <Icon component={foodIcon} />,
-    label: <NavLink to="/products">Products</NavLink>,
-  },
-  {
-    key: "/orders",
-    icon: <Icon component={BasketIcon} />,
-    label: <NavLink to="/orders">Orders</NavLink>,
-  },
-  {
-    key: "/promos",
-    icon: <Icon component={GiftIcon} />,
-    label: <NavLink to="/promos">Promos</NavLink>,
-  },
-];
+const getMenuItems = (role: string) => {
+  const baseItems = [
+    {
+      key: "/",
+      icon: <Icon component={Home} />,
+      label: <NavLink to="/">Home</NavLink>,
+    },
+
+    {
+      key: "/products",
+      icon: <Icon component={foodIcon} />,
+      label: <NavLink to="/products">Products</NavLink>,
+    },
+    {
+      key: "/orders",
+      icon: <Icon component={BasketIcon} />,
+      label: <NavLink to="/orders">Orders</NavLink>,
+    },
+    {
+      key: "/promos",
+      icon: <Icon component={GiftIcon} />,
+      label: <NavLink to="/promos">Promos</NavLink>,
+    },
+  ];
+
+  if (role === "admin") {
+    const menus = [...baseItems];
+    menus.splice(1, 0, {
+      key: "/users",
+      icon: <Icon component={UserIcon} />,
+      label: <NavLink to="/users">Users</NavLink>,
+    });
+
+    return menus;
+  }
+
+  return baseItems;
+};
 
 const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -65,7 +75,8 @@ const Dashboard = () => {
   if (user === null) {
     return <Navigate to={`/auth/login`} replace={true} />;
   }
-  //   const items = getMenuItems(user.role);
+
+  const items = getMenuItems(user.role);
 
   return (
     <div>
