@@ -1,7 +1,11 @@
-import React from "react";
+import CommonBredcrum from "../../components/commanComponent/CommonBredcrum";
 
 const Users = () => {
-  return <div>Users</div>;
+  return (
+    <div>
+      <CommonBredcrum />
+    </div>
+  );
 };
 
 export default Users;
