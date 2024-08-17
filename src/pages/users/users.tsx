@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import CommonBredcrum from "../../components/commanComponent/CommonBredcrum";
 import { getUsers } from "../../http/api";
-import { Button, Drawer, Space, Table } from "antd";
+import { Button, Drawer, Space, Table, theme, Form } from "antd";
 import { User } from "../../types";
 import { PlusOutlined } from "@ant-design/icons";
-import UsersFilter from "./UsersFilter";
+import UsersFilter from "./usersFilter";
 import { useState } from "react";
+import UserForm from "./forms/userForm";
 
 const columns = [
   {
@@ -51,6 +52,10 @@ const Users = () => {
     },
   });
 
+  const {
+    token: { colorBgLayout },
+  } = theme.useToken();
+
   return (
     <>
       <CommonBredcrum />
@@ -79,6 +84,7 @@ const Users = () => {
         width={720}
         destroyOnClose={true}
         open={drawerOpen}
+        styles={{ body: { backgroundColor: colorBgLayout } }}
         onClose={() => {
           setDrawerOpen(false);
         }}
@@ -100,7 +106,11 @@ const Users = () => {
             </Button>
           </Space>
         }
-      ></Drawer>
+      >
+        <Form layout="vertical">
+          <UserForm />
+        </Form>
+      </Drawer>
     </>
   );
 };
