@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import CommonBredcrum from "../../components/commanComponent/CommonBredcrum";
 import { getUsers } from "../../http/api";
-import { Button, Table } from "antd";
+import { Button, Drawer, Space, Table } from "antd";
 import { User } from "../../types";
 import { PlusOutlined } from "@ant-design/icons";
 import UsersFilter from "./UsersFilter";
+import { useState } from "react";
 
 const columns = [
   {
@@ -36,6 +37,8 @@ const columns = [
   },
 ];
 const Users = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const {
     data: users,
     isLoading,
@@ -58,7 +61,7 @@ const Users = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          // onClick={() => setDrawerOpen(true)}
+          onClick={() => setDrawerOpen(true)}
         >
           Add User
         </Button>
@@ -71,35 +74,33 @@ const Users = () => {
         rowKey={"id"}
       />
 
-      {/* <Drawer
-                    title={currentEditingUser ? 'Edit User' : 'Add User'}
-                    width={720}
-                    styles={{ body: { backgroundColor: colorBgLayout } }}
-                    destroyOnClose={true}
-                    open={drawerOpen}
-                    onClose={() => {
-                        form.resetFields();
-                        setCurrentEditingUser(null);
-                        setDrawerOpen(false);
-                    }}
-                    extra={
-                        <Space>
-                            <Button
-                                onClick={() => {
-                                    form.resetFields();
-                                    setDrawerOpen(false);
-                                }}>
-                                Cancel
-                            </Button>
-                            <Button type="primary" onClick={onHandleSubmit}>
-                                Submit
-                            </Button>
-                        </Space>
-                    }>
-                    <Form layout="vertical" form={form}>
-                        <UserForm isEditMode={!!currentEditingUser} />
-                    </Form>
-                </Drawer> */}
+      <Drawer
+        title="Create User"
+        width={720}
+        destroyOnClose={true}
+        open={drawerOpen}
+        onClose={() => {
+          setDrawerOpen(false);
+        }}
+        extra={
+          <Space>
+            <Button
+              onClick={() => {
+                // form.resetFields();
+                setDrawerOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              // onClick={onHandleSubmit}
+            >
+              Submit
+            </Button>
+          </Space>
+        }
+      ></Drawer>
     </>
   );
 };
