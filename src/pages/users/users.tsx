@@ -55,6 +55,7 @@ const Users = () => {
         style={{ marginTop: "20px" }}
         columns={columns}
         dataSource={users}
+        rowKey={"id"}
       ></Table>
     </>
   );
