@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CommonBredcrum from "../../components/commanComponent/CommonBredcrum";
-import { getUsers } from "../../http/api";
+import { createUser, getUsers } from "../../http/api";
 import { Button, Drawer, Space, Table, theme, Form } from "antd";
-import { User } from "../../types";
+import { CreateUserData, User } from "../../types";
 import { PlusOutlined } from "@ant-design/icons";
 import UsersFilter from "./usersFilter";
 import { useState } from "react";
@@ -38,6 +38,9 @@ const columns = [
   },
 ];
 const Users = () => {
+  const [form] = Form.useForm();
+  const queryClient = useQueryClient();
+
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const {
@@ -55,6 +58,24 @@ const Users = () => {
   const {
     token: { colorBgLayout },
   } = theme.useToken();
+
+  const { mutate: userMutate } = useMutation({
+    mutationKey: ["user"],
+    mutationFn: async (data: CreateUserData) =>
+      createUser(data).then((res) => res.data),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      return;
+    },
+  });
+
+  const onHandleSubmit = async () => {
+    await form.validateFields();
+    console.log("Form values", form.getFieldsValue());
+    await userMutate(form.getFieldsValue());
+    form.resetFields();
+    setDrawerOpen(false);
+  };
 
   return (
     <>
@@ -86,28 +107,26 @@ const Users = () => {
         open={drawerOpen}
         styles={{ body: { backgroundColor: colorBgLayout } }}
         onClose={() => {
+          form.resetFields();
           setDrawerOpen(false);
         }}
         extra={
           <Space>
             <Button
               onClick={() => {
-                // form.resetFields();
+                form.resetFields();
                 setDrawerOpen(false);
               }}
             >
               Cancel
             </Button>
-            <Button
-              type="primary"
-              // onClick={onHandleSubmit}
-            >
+            <Button type="primary" onClick={onHandleSubmit}>
               Submit
             </Button>
           </Space>
         }
       >
-        <Form layout="vertical">
+        <Form layout="vertical" form={form}>
           <UserForm />
         </Form>
       </Drawer>

@@ -17,3 +17,12 @@ export type User = {
   createdAt: string;
   tenant: Tenant | null;
 };
+
+export type CreateUserData = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  role: string;
+  tenant: number;
+};
