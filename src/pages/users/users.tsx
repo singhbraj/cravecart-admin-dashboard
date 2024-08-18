@@ -17,12 +17,13 @@ import {
   Flex,
   Typography,
 } from "antd";
-import { CreateUserData, User } from "../../types";
+import { CreateUserData, FieldData, User } from "../../types";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import UsersFilter from "./usersFilter";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import UserForm from "./forms/userForm";
 import { PER_PAGE } from "../../constants";
+import { debounce } from "lodash";
 
 const columns = [
   {
@@ -55,6 +56,7 @@ const columns = [
 ];
 const Users = () => {
   const [form] = Form.useForm();
+  const [filterForm] = Form.useForm();
   const queryClient = useQueryClient();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -106,6 +108,30 @@ const Users = () => {
     setDrawerOpen(false);
   };
 
+  const debouncedQUpdate = useMemo(() => {
+    return debounce((value: string | undefined) => {
+      setQueryParams((prev) => ({ ...prev, q: value, currentPage: 1 }));
+    }, 500);
+  }, []);
+
+  const onFilterChange = (changedFields: FieldData[]) => {
+    const changedFilterFields = changedFields
+      .map((item) => ({
+        [item.name[0]]: item.value,
+      }))
+      .reduce((acc, item) => ({ ...acc, ...item }), {});
+
+    if ("q" in changedFilterFields) {
+      debouncedQUpdate(changedFilterFields.q);
+    } else {
+      setQueryParams((prev) => ({
+        ...prev,
+        ...changedFilterFields,
+        currentPage: 1,
+      }));
+    }
+  };
+
   return (
     <>
       <Flex justify="space-between">
@@ -120,17 +146,17 @@ const Users = () => {
 
       {isLoading && <div> Loading... </div>}
       {isError && <div> {error.message} </div>}
-      {/* <Form form={filterForm} onFieldsChange={onFilterChange}> */}
-      <UsersFilter>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => setDrawerOpen(true)}
-        >
-          Add User
-        </Button>
-      </UsersFilter>
-      {/* </Form> */}
+      <Form form={filterForm} onFieldsChange={onFilterChange}>
+        <UsersFilter>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setDrawerOpen(true)}
+          >
+            Add User
+          </Button>
+        </UsersFilter>
+      </Form>
       <Table
         style={{ marginTop: "20px" }}
         columns={columns}

@@ -26,3 +26,8 @@ export type CreateUserData = {
   role: string;
   tenant: number;
 };
+
+export type FieldData = {
+  name: string[];
+  value?: string;
+};
