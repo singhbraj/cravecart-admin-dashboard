@@ -1,12 +1,28 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import CommonBredcrum from "../../components/commanComponent/CommonBredcrum";
 import { createUser, getUsers } from "../../http/api";
-import { Button, Drawer, Space, Table, theme, Form } from "antd";
+import {
+  Button,
+  Drawer,
+  Space,
+  Table,
+  theme,
+  Form,
+  Spin,
+  Flex,
+  Typography,
+} from "antd";
 import { CreateUserData, User } from "../../types";
-import { PlusOutlined } from "@ant-design/icons";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import UsersFilter from "./usersFilter";
 import { useState } from "react";
 import UserForm from "./forms/userForm";
+import { PER_PAGE } from "../../constants";
 
 const columns = [
   {
@@ -43,16 +59,30 @@ const Users = () => {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const [queryParams, setQueryParams] = useState({
+    perPage: PER_PAGE,
+    currentPage: 1,
+  });
+
   const {
     data: users,
     isLoading,
     isError,
     error,
+    isFetching,
   } = useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", queryParams],
     queryFn: () => {
-      return getUsers().then((res) => res.data);
+      const filteredParams = Object.fromEntries(
+        Object.entries(queryParams).filter((item) => !!item[1])
+      );
+
+      const queryString = new URLSearchParams(
+        filteredParams as unknown as Record<string, string>
+      ).toString();
+      return getUsers(queryString).then((res) => res.data);
     },
+    placeholderData: keepPreviousData,
   });
 
   const {
@@ -71,7 +101,6 @@ const Users = () => {
 
   const onHandleSubmit = async () => {
     await form.validateFields();
-    console.log("Form values", form.getFieldsValue());
     await userMutate(form.getFieldsValue());
     form.resetFields();
     setDrawerOpen(false);
@@ -79,7 +108,16 @@ const Users = () => {
 
   return (
     <>
-      <CommonBredcrum />
+      <Flex justify="space-between">
+        <CommonBredcrum />
+        {isFetching && (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+        )}
+        {isError && (
+          <Typography.Text type="danger">{error.message}</Typography.Text>
+        )}
+      </Flex>
+
       {isLoading && <div> Loading... </div>}
       {isError && <div> {error.message} </div>}
       {/* <Form form={filterForm} onFieldsChange={onFilterChange}> */}
@@ -96,8 +134,24 @@ const Users = () => {
       <Table
         style={{ marginTop: "20px" }}
         columns={columns}
-        dataSource={users}
+        dataSource={users?.data}
         rowKey={"id"}
+        pagination={{
+          total: users?.total,
+          pageSize: queryParams.perPage,
+          current: queryParams.currentPage,
+          onChange: (page) => {
+            setQueryParams((prev) => {
+              return {
+                ...prev,
+                currentPage: page,
+              };
+            });
+          },
+          showTotal: (total: number, range: number[]) => {
+            return `Showing ${range[0]}-${range[1]} of ${total} items`;
+          },
+        }}
       />
 
       <Drawer
