@@ -1,4 +1,4 @@
-import { NavLink, Navigate, Outlet } from "react-router-dom";
+import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
 import Icon, { BellFilled } from "@ant-design/icons";
 import { useAuthStore } from "../store";
 import {
@@ -49,11 +49,20 @@ const getMenuItems = (role: string) => {
 
   if (role === "admin") {
     const menus = [...baseItems];
-    menus.splice(1, 0, {
-      key: "/users",
-      icon: <Icon component={UserIcon} />,
-      label: <NavLink to="/users">Users</NavLink>,
-    });
+    menus.splice(
+      1,
+      0,
+      {
+        key: "/users",
+        icon: <Icon component={UserIcon} />,
+        label: <NavLink to="/users">Users</NavLink>,
+      },
+      {
+        key: "/restaurants",
+        icon: <Icon component={foodIcon} />,
+        label: <NavLink to="/restaurants">Restaurants</NavLink>,
+      }
+    );
 
     return menus;
   }
@@ -69,11 +78,17 @@ const Dashboard = () => {
 
   // call getself
   const { user } = useAuthStore();
+  const location = useLocation();
 
   const { logoutMutate } = useLogoutMutation();
 
   if (user === null) {
-    return <Navigate to={`/auth/login`} replace={true} />;
+    return (
+      <Navigate
+        to={`/auth/login?returnTo=${location.pathname}`}
+        replace={true}
+      />
+    );
   }
 
   const items = getMenuItems(user.role);
@@ -93,7 +108,7 @@ const Dashboard = () => {
 
           <Menu
             theme="light"
-            defaultSelectedKeys={["/"]}
+            defaultSelectedKeys={[location.pathname]}
             mode="inline"
             items={items}
           />
