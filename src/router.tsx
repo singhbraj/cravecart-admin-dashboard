@@ -28,6 +28,10 @@ export const router = createBrowserRouter([
             path: "/restaurants",
             element: <Tenants />,
           },
+          {
+            path: "*",
+            element: <div>Page Not Found</div>,
+          },
           // {
           //     path: '/products',
           //     element: <Products />,
