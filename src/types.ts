@@ -32,7 +32,4 @@ export type FieldData = {
   value?: string;
 };
 
-export type CreateTenantData = {
-  name: string;
-  address: string;
-};
+
